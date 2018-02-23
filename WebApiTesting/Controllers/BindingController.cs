@@ -18,17 +18,32 @@ namespace WebApiTesting.Controllers
         private string _connString = ConfigurationManager.ConnectionStrings["Northwind"].ConnectionString;
 
         [HttpGet]
-        public HttpResponseMessage Index()
+        public IHttpActionResult Index()
         {
-            var msg = new HttpResponseMessage();
-            msg.StatusCode = HttpStatusCode.OK;
-            msg.Content = new StringContent("hello world");
-
-            return msg;
+            return Ok("hello world");            
         }
 
         [HttpPost]
-        public Products GetProducts(QueryDto query)
+        public Products QueryProducts(QueryDto query)
+        {
+            using (var conn = new SqlConnection(_connString))
+            {
+                var builder = new SqlBuilder();
+                var productBuilder = builder.AddTemplate("select * from products /**where**/");                
+                if (query != null)
+                {
+                    builder.Where("ProductId = @productId", new { ProductId = query.ProductId });
+                }
+
+                var product = conn.QueryFirstOrDefault<Products>(productBuilder.RawSql, 
+                                                                 productBuilder.Parameters);
+
+                return product;
+            }            
+        }
+
+        [HttpPost]
+        public HttpResponseMessage QueryProductsHttp(QueryDto query)
         {
             using (var conn = new SqlConnection(_connString))
             {
@@ -36,8 +51,14 @@ namespace WebApiTesting.Controllers
 
                 product.ProductName = query.ProductName;
 
-                return product;
+                return Request.CreateResponse(HttpStatusCode.OK, product);
             }
+        }
+
+        [HttpPost]
+        public IEnumerable<QueryDto> PassListParam(QueryCollection collection)
+        {
+            return collection.Queries;
         }
     }
 
@@ -48,4 +69,8 @@ namespace WebApiTesting.Controllers
         public string ProductName { get; set; }
     }
 
+    public class QueryCollection
+    {
+        public List<QueryDto> Queries { get; set; }
+    }
 }
