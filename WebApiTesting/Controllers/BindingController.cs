@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using WebApiTesting.ActionFilter;
 using WebApiTesting.Models;
 
 namespace WebApiTesting.Controllers
@@ -18,12 +19,13 @@ namespace WebApiTesting.Controllers
         private string _connString = ConfigurationManager.ConnectionStrings["Northwind"].ConnectionString;
 
         [HttpGet]
+        [TokenCheck]
         public IHttpActionResult Index()
         {
             return Ok("hello world");            
         }
 
-        [HttpPost]
+        [HttpPost]        
         public Products QueryProducts(QueryDto query)
         {
             using (var conn = new SqlConnection(_connString))
