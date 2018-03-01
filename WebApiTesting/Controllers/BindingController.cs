@@ -19,7 +19,7 @@ namespace WebApiTesting.Controllers
         private string _connString = ConfigurationManager.ConnectionStrings["Northwind"].ConnectionString;
 
         [HttpGet]
-        [TokenCheck]
+        [TokenCheck]       
         public IHttpActionResult Index()
         {
             return Ok("hello world");            
