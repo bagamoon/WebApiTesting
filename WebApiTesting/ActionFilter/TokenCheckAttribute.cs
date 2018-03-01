@@ -12,7 +12,7 @@ using WebApiTesting.Controllers;
 
 namespace WebApiTesting.ActionFilter
 {
-    public class TokenCheck : ActionFilterAttribute
+    public class TokenCheckAttribute : ActionFilterAttribute
     {
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
